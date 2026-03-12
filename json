@@ -1,0 +1,84 @@
+{
+  "name": "LUXFEE - School Fee Management System",
+  "short_name": "LUXFEE",
+  "description": "Complete school fee management system with class-wise student tracking, batch operations, and payment history",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#87CEEB",
+  "theme_color": "#667eea",
+  "orientation": "portrait",
+  "scope": "/",
+  "categories": ["education", "finance", "productivity"],
+  "lang": "en-IN",
+  "dir": "ltr",
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "https://via.placeholder.com/192x192/667eea/ffffff?text=LF",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://via.placeholder.com/512x512/667eea/ffffff?text=LF",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://via.placeholder.com/144x144/667eea/ffffff?text=LF",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "https://via.placeholder.com/1080x1920/87CEEB/667eea?text=LUXFEE+Dashboard",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "platform": "wide",
+      "label": "LUXFEE Dashboard showing class-wise student management"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Add Student",
+      "short_name": "Add",
+      "description": "Quickly add a new student to current session",
+      "url": "/?action=add",
+      "icons": [
+        {
+          "src": "https://via.placeholder.com/96x96/48bb78/ffffff?text=+",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "View Sessions",
+      "short_name": "Sessions",
+      "description": "Manage academic sessions",
+      "url": "/?action=sessions",
+      "icons": [
+        {
+          "src": "https://via.placeholder.com/96x96/9f7aea/ffffff?text=📅",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Batch Operations",
+      "short_name": "Batch",
+      "description": "Perform batch operations on students",
+      "url": "/?action=batch",
+      "icons": [
+        {
+          "src": "https://via.placeholder.com/96x96/ed8936/ffffff?text=⚡",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "related_applications": [],
+  "display_override": ["standalone", "browser"]
+}
