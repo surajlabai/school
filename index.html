@@ -1,0 +1,1892 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LUXFEE | School Fee Management</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #87CEEB 0%, #B0E0E6 50%, #E0F6FF 100%);
+        }
+
+        /* Animated Clouds */
+        .cloud {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 1000px;
+            animation: float 20s infinite linear;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .cloud::before, .cloud::after {
+            content: '';
+            position: absolute;
+            background: inherit;
+            border-radius: 50%;
+        }
+
+        .cloud::before {
+            width: 60px;
+            height: 60px;
+            top: -30px;
+            left: 10px;
+        }
+
+        .cloud::after {
+            width: 80px;
+            height: 80px;
+            top: -40px;
+            left: 40px;
+        }
+
+        @keyframes float {
+            from { transform: translateX(-100%) translateY(0); }
+            to { transform: translateX(100vw) translateY(-20px); }
+        }
+
+        .cloud1 { width: 200px; height: 60px; top: 10%; animation-duration: 35s; }
+        .cloud2 { width: 250px; height: 70px; top: 25%; animation-duration: 45s; }
+        .cloud3 { width: 180px; height: 50px; top: 40%; animation-duration: 40s; }
+        .cloud4 { width: 220px; height: 65px; top: 55%; animation-duration: 50s; }
+        .cloud5 { width: 190px; height: 55px; top: 70%; animation-duration: 38s; }
+        .cloud6 { width: 280px; height: 75px; top: 85%; animation-duration: 55s; }
+
+        /* Stylish Text */
+        .stylish-title {
+            font-family: 'Playfair Display', serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .school-name-highlight {
+            font-family: 'Playfair Display', serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { text-shadow: 3px 3px 6px rgba(102, 126, 234, 0.3); }
+            50% { text-shadow: 6px 6px 12px rgba(102, 126, 234, 0.6); }
+        }
+
+        /* Glass Card */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(72, 187, 120, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #f56565, #e53e3e);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 101, 101, 0.4);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #ed8936, #dd6b20);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+        }
+
+        /* Input Fields */
+        .input-field {
+            background: rgba(255, 255, 255, 0.95);
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            border-radius: 12px;
+            padding: 12px 20px;
+            width: 100%;
+            transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+
+        /* Select Field */
+        .select-field {
+            background: rgba(255, 255, 255, 0.95);
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            border-radius: 12px;
+            padding: 12px 20px;
+            width: 100%;
+            font-family: 'Poppins', sans-serif;
+            cursor: pointer;
+        }
+
+        /* Class Card */
+        .class-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 5px solid #667eea;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .class-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        /* Student Card */
+        .student-card {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid #e2e8f0;
+        }
+
+        .student-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+            border-color: #667eea;
+        }
+
+        .student-card.batch-selected {
+            background: rgba(102, 126, 234, 0.1);
+            border-left: 5px solid #48bb78;
+        }
+
+        /* Student Profile Modal */
+        .profile-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .profile-modal.active {
+            display: flex;
+        }
+
+        .profile-content {
+            background: white;
+            border-radius: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .profile-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 30px;
+            border-radius: 30px 30px 0 0;
+            text-align: center;
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 40px;
+            color: #667eea;
+            border: 4px solid white;
+        }
+
+        .profile-body {
+            padding: 30px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .info-label {
+            color: #718096;
+            font-weight: 500;
+        }
+
+        .info-value {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .payment-item {
+            background: #f7fafc;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 8px;
+            border-left: 3px solid #48bb78;
+        }
+
+        /* Session Card */
+        .session-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .session-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5);
+        }
+
+        .session-card.active {
+            border: 3px solid gold;
+            box-shadow: 0 0 25px gold;
+            position: relative;
+        }
+
+        .session-card.active::after {
+            content: '✓ Active';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: gold;
+            color: #4a5568;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* Batch Actions */
+        .batch-bar {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .batch-btn {
+            background: white;
+            color: #667eea;
+            padding: 8px 16px;
+            border-radius: 25px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 0 5px;
+            transition: all 0.3s ease;
+        }
+
+        .batch-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .batch-btn.danger {
+            background: #f56565;
+            color: white;
+        }
+
+        .batch-btn.success {
+            background: #48bb78;
+            color: white;
+        }
+
+        /* Class Tabs */
+        .class-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .class-tab {
+            background: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .class-tab:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .class-tab.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .class-tab.all-classes {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        /* Loader */
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .content-wrapper {
+            position: relative;
+            z-index: 10;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Clouds -->
+    <div class="cloud cloud1"></div>
+    <div class="cloud cloud2"></div>
+    <div class="cloud cloud3"></div>
+    <div class="cloud cloud4"></div>
+    <div class="cloud cloud5"></div>
+    <div class="cloud cloud6"></div>
+
+    <!-- Batch Edit Modal -->
+    <div id="batchEditModal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold stylish-title">Batch Edit Students</h3>
+                <button onclick="closeBatchEditModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-gray-700 font-semibold mb-2">Selected Students: <span id="batchEditCount" class="gradient-text">0</span></label>
+                </div>
+                
+                <div>
+                    <label class="block text-gray-700 font-semibold mb-2">New Class</label>
+                    <select id="batchEditClass" class="select-field">
+                        <option value="">Keep Current</option>
+                        <option value="Nursery">Nursery</option>
+                        <option value="KG">KG</option>
+                        <option value="1">Class 1</option>
+                        <option value="2">Class 2</option>
+                        <option value="3">Class 3</option>
+                        <option value="4">Class 4</option>
+                        <option value="5">Class 5</option>
+                        <option value="6">Class 6</option>
+                        <option value="7">Class 7</option>
+                        <option value="8">Class 8</option>
+                        <option value="9">Class 9</option>
+                        <option value="10">Class 10</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-gray-700 font-semibold mb-2">New Monthly Fee</label>
+                    <input type="number" id="batchEditMonthlyFee" class="input-field" placeholder="Leave empty to keep current">
+                </div>
+                
+                <div>
+                    <label class="block text-gray-700 font-semibold mb-2">New Transport Fee</label>
+                    <input type="number" id="batchEditTransportFee" class="input-field" placeholder="Leave empty to keep current">
+                </div>
+                
+                <button onclick="processBatchEdit()" class="btn-primary w-full">Update All Selected</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Batch Payment Modal -->
+    <div id="batchPaymentModal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold stylish-title">Batch Payment</h3>
+                <button onclick="closeBatchPaymentModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-gray-700 font-semibold mb-2">Selected Students: <span id="selectedCount" class="gradient-text">0</span></label>
+                </div>
+                
+                <div>
+                    <label class="block text-gray-700 font-semibold mb-2">Payment Month</label>
+                    <input type="month" id="batchPaymentMonth" class="input-field" required>
+                </div>
+                
+                <div>
+                    <label class="block text-gray-700 font-semibold mb-2">Payment Amount per Student</label>
+                    <input type="number" id="batchPaymentAmount" class="input-field" placeholder="Enter amount">
+                </div>
+                
+                <button onclick="processBatchPayment()" class="btn-success w-full">Process Batch Payment</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Student Profile Modal -->
+    <div id="studentProfileModal" class="profile-modal">
+        <div class="profile-content">
+            <div class="profile-header">
+                <div class="profile-avatar">
+                    <i class="fas fa-user-graduate"></i>
+                </div>
+                <h2 id="profileStudentName" class="text-2xl font-bold"></h2>
+                <p id="profileParentName" class="text-sm opacity-90"></p>
+            </div>
+            
+            <div class="profile-body">
+                <div class="mb-6">
+                    <h3 class="font-bold text-lg mb-3">Student Information</h3>
+                    <div class="info-row">
+                        <span class="info-label">Class</span>
+                        <span class="info-value" id="profileClass"></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Phone Number</span>
+                        <span class="info-value" id="profilePhone"></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Monthly Fee</span>
+                        <span class="info-value" id="profileMonthlyFee"></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Transport Fee</span>
+                        <span class="info-value" id="profileTransportFee"></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Total Fee</span>
+                        <span class="info-value" id="profileTotalFee"></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Paid Amount</span>
+                        <span class="info-value text-green-600" id="profilePaidAmount"></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Due Amount</span>
+                        <span class="info-value text-red-600" id="profileDueAmount"></span>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <h3 class="font-bold text-lg mb-3">Payment History</h3>
+                    <div id="profilePayments" class="space-y-2">
+                        <!-- Payments will be loaded here -->
+                    </div>
+                </div>
+
+                <div class="flex gap-3">
+                    <button onclick="makePaymentFromProfile()" class="btn-success flex-1">
+                        <i class="fas fa-money-bill mr-2"></i>Make Payment
+                    </button>
+                    <button onclick="closeProfileModal()" class="btn-danger flex-1">
+                        <i class="fas fa-times mr-2"></i>Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content-wrapper min-h-screen">
+        <!-- Firebase Configuration -->
+        <script>
+            const firebaseConfig = {
+                apiKey: "AIzaSyBaK4UUswyAHzRE0yf_ijuYTT1EpxLuRmA",
+                authDomain: "school-42e8e.firebaseapp.com",
+                databaseURL: "https://school-42e8e-default-rtdb.asia-southeast1.firebasedatabase.app",
+                projectId: "school-42e8e",
+                storageBucket: "school-42e8e.firebasestorage.app",
+                messagingSenderId: "238575381113",
+                appId: "1:238575381113:web:f903e4eef3fd408a0082a8"
+            };
+
+            firebase.initializeApp(firebaseConfig);
+            const database = firebase.database();
+            const auth = firebase.auth();
+            
+            auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+        </script>
+
+        <!-- Login Page -->
+        <div id="loginPage" class="min-h-screen flex items-center justify-center p-4">
+            <div class="w-full max-w-md">
+                <div class="text-center mb-8">
+                    <div class="flex items-center justify-center space-x-2 mb-4">
+                        <i class="fas fa-school text-5xl text-white drop-shadow-lg" style="color: #667eea;"></i>
+                        <span class="text-4xl font-bold school-name-highlight">LUXFEE</span>
+                    </div>
+                    <p class="text-white text-lg drop-shadow" style="color: #4a5568;">School Fee Management System</p>
+                </div>
+
+                <div class="glass-card p-8">
+                    <h2 class="text-2xl font-bold stylish-title mb-6 text-center">Welcome Back</h2>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-gray-700 text-sm font-semibold mb-2">School Email</label>
+                            <input type="email" id="loginEmail" class="input-field" placeholder="Enter your email">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 text-sm font-semibold mb-2">Password</label>
+                            <input type="password" id="loginPassword" class="input-field" placeholder="Enter password">
+                        </div>
+
+                        <button onclick="handleLogin()" class="btn-primary w-full">
+                            <i class="fas fa-sign-in-alt mr-2"></i>Sign In
+                        </button>
+
+                        <div class="relative my-6">
+                            <div class="absolute inset-0 flex items-center">
+                                <div class="w-full border-t border-gray-300"></div>
+                            </div>
+                            <div class="relative flex justify-center text-sm">
+                                <span class="px-2 bg-white bg-opacity-90 text-gray-500">New School?</span>
+                            </div>
+                        </div>
+
+                        <button onclick="showSignup()" class="btn-secondary w-full">
+                            <i class="fas fa-user-plus mr-2"></i>Register
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Signup Page -->
+        <div id="signupPage" class="min-h-screen flex items-center justify-center p-4 hidden">
+            <div class="w-full max-w-md">
+                <div class="text-center mb-8">
+                    <button onclick="showLogin()" class="text-white mb-4 hover:underline" style="color: #4a5568;">
+                        <i class="fas fa-arrow-left mr-2"></i>Back to Login
+                    </button>
+                    <h2 class="text-3xl font-bold school-name-highlight">Create Account</h2>
+                    <p class="text-white" style="color: #4a5568;">Register your school</p>
+                </div>
+
+                <div class="glass-card p-8">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-gray-700 text-sm font-semibold mb-2">School Name</label>
+                            <input type="text" id="signupSchoolName" class="input-field" placeholder="Enter school name">
+                        </div>
+
+                        <div>
+                            <label class="block text-gray-700 text-sm font-semibold mb-2">Email Address</label>
+                            <input type="email" id="signupEmail" class="input-field" placeholder="Enter email">
+                        </div>
+
+                        <div>
+                            <label class="block text-gray-700 text-sm font-semibold mb-2">Phone Number</label>
+                            <input type="tel" id="signupPhone" class="input-field" placeholder="Enter phone number">
+                        </div>
+
+                        <div>
+                            <label class="block text-gray-700 text-sm font-semibold mb-2">Password</label>
+                            <input type="password" id="signupPassword" class="input-field" placeholder="Create password">
+                        </div>
+
+                        <div>
+                            <label class="block text-gray-700 text-sm font-semibold mb-2">Confirm Password</label>
+                            <input type="password" id="signupConfirmPassword" class="input-field" placeholder="Confirm password">
+                        </div>
+
+                        <button onclick="handleSignup()" class="btn-primary w-full">
+                            <i class="fas fa-user-check mr-2"></i>Register School
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Page -->
+        <div id="dashboardPage" class="hidden">
+            <!-- Navigation Bar -->
+            <nav class="glass-card mx-4 mt-4 px-6 py-4">
+                <div class="max-w-7xl mx-auto flex justify-between items-center">
+                    <div class="flex items-center space-x-4">
+                        <i class="fas fa-school text-3xl" style="color: #667eea;"></i>
+                        <div>
+                            <span class="text-2xl font-bold school-name-highlight">LUXFEE</span>
+                            <span id="schoolNameDisplay" class="block text-sm font-semibold gradient-text"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center space-x-2">
+                        <button onclick="toggleBatchMode()" id="batchModeBtn" class="batch-select hidden">
+                            <i class="fas fa-check-double mr-2"></i>Batch Mode
+                        </button>
+                        <button onclick="logout()" class="btn-danger">
+                            <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                        </button>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Batch Bar -->
+            <div id="batchBar" class="batch-bar mx-4 mt-4 hidden">
+                <div class="max-w-7xl mx-auto">
+                    <div class="flex flex-wrap items-center justify-between gap-4">
+                        <div>
+                            <span class="font-bold text-lg">Selected: <span id="batchSelectedCount">0</span> students</span>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="selectAllStudents()" class="batch-btn">
+                                <i class="fas fa-check-double mr-1"></i>Select All
+                            </button>
+                            <button onclick="deselectAllStudents()" class="batch-btn">
+                                <i class="fas fa-times mr-1"></i>Deselect All
+                            </button>
+                            <button onclick="openBatchPaymentModal()" class="batch-btn success">
+                                <i class="fas fa-money-bill mr-1"></i>Batch Pay
+                            </button>
+                            <button onclick="openBatchEditModal()" class="batch-btn">
+                                <i class="fas fa-edit mr-1"></i>Batch Edit
+                            </button>
+                            <button onclick="batchPromote()" class="batch-btn">
+                                <i class="fas fa-arrow-up mr-1"></i>Batch Promote
+                            </button>
+                            <button onclick="batchDelete()" class="batch-btn danger">
+                                <i class="fas fa-trash mr-1"></i>Batch Delete
+                            </button>
+                            <button onclick="toggleBatchMode()" class="batch-btn danger">
+                                <i class="fas fa-power-off mr-1"></i>Exit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="max-w-7xl mx-auto px-4 py-8">
+                <!-- Session Management -->
+                <div class="mb-8">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold stylish-title">Academic Sessions</h2>
+                        <button onclick="createNewSession()" class="btn-success">
+                            <i class="fas fa-plus mr-2"></i>New Session
+                        </button>
+                    </div>
+                    
+                    <div id="sessionsList" class="grid grid-cols-1 md:grid-cols-4 gap-4"></div>
+                </div>
+
+                <!-- Current Session Indicator -->
+                <div id="currentSessionInfo" class="mb-4 text-lg font-semibold gradient-text">
+                    Current Session: <span id="currentSessionName" class="highlight">None</span>
+                </div>
+
+                <!-- Add Student Form -->
+                <div class="glass-card p-6 mb-8">
+                    <h3 class="section-title text-xl font-bold text-gray-800 mb-4">
+                        <i class="fas fa-plus-circle mr-2" style="color: #667eea;"></i>Add Student
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <input type="text" id="parentName" placeholder="Parent Name *" class="input-field">
+                        <input type="text" id="studentName" placeholder="Student Name *" class="input-field">
+                        <select id="className" class="select-field">
+                            <option value="">Select Class *</option>
+                            <option value="Nursery">Nursery</option>
+                            <option value="KG">KG</option>
+                            <option value="1">Class 1</option>
+                            <option value="2">Class 2</option>
+                            <option value="3">Class 3</option>
+                            <option value="4">Class 4</option>
+                            <option value="5">Class 5</option>
+                            <option value="6">Class 6</option>
+                            <option value="7">Class 7</option>
+                            <option value="8">Class 8</option>
+                            <option value="9">Class 9</option>
+                            <option value="10">Class 10</option>
+                        </select>
+                        <input type="tel" id="phoneNumber" placeholder="Phone Number *" class="input-field">
+                        <input type="number" id="monthlyFee" placeholder="Monthly Fee" class="input-field" value="0">
+                        <input type="number" id="transportFee" placeholder="Transport Fee" class="input-field" value="0">
+                    </div>
+
+                    <button onclick="addStudent()" class="btn-primary mt-4">
+                        <i class="fas fa-user-plus mr-2"></i>Add Student
+                    </button>
+                    <p class="text-xs text-gray-500 mt-2">* Parent name must be unique</p>
+                </div>
+
+                <!-- Class Tabs -->
+                <div class="mb-6">
+                    <div id="classTabs" class="class-tabs">
+                        <div class="class-tab all-classes active" onclick="filterByClass('all')">All Classes</div>
+                        <div class="class-tab" onclick="filterByClass('Nursery')">Nursery</div>
+                        <div class="class-tab" onclick="filterByClass('KG')">KG</div>
+                        <div class="class-tab" onclick="filterByClass('1')">Class 1</div>
+                        <div class="class-tab" onclick="filterByClass('2')">Class 2</div>
+                        <div class="class-tab" onclick="filterByClass('3')">Class 3</div>
+                        <div class="class-tab" onclick="filterByClass('4')">Class 4</div>
+                        <div class="class-tab" onclick="filterByClass('5')">Class 5</div>
+                        <div class="class-tab" onclick="filterByClass('6')">Class 6</div>
+                        <div class="class-tab" onclick="filterByClass('7')">Class 7</div>
+                        <div class="class-tab" onclick="filterByClass('8')">Class 8</div>
+                        <div class="class-tab" onclick="filterByClass('9')">Class 9</div>
+                        <div class="class-tab" onclick="filterByClass('10')">Class 10</div>
+                    </div>
+                </div>
+
+                <!-- Search Bar -->
+                <div class="glass-card p-4 mb-6">
+                    <div class="relative">
+                        <i class="fas fa-search absolute left-4 top-3 text-gray-400"></i>
+                        <input type="text" id="searchInput" onkeyup="searchStudents()" 
+                            placeholder="Search by parent name or student name..." 
+                            class="input-field pl-12">
+                    </div>
+                </div>
+
+                <!-- Students by Class -->
+                <div id="classesContainer"></div>
+            </div>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div id="loadingOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+            <div class="bg-white p-8 rounded-lg text-center">
+                <div class="loader mx-auto mb-4"></div>
+                <p class="text-gray-600">Loading...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentUser = null;
+        let currentSchoolId = null;
+        let currentSession = null;
+        let batchMode = false;
+        let selectedStudents = new Set();
+        let currentClassFilter = 'all';
+        let currentProfileStudent = null;
+
+        // Auth state
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                currentUser = user;
+                currentSchoolId = user.uid;
+                document.getElementById('loginPage').classList.add('hidden');
+                document.getElementById('signupPage').classList.add('hidden');
+                document.getElementById('dashboardPage').classList.remove('hidden');
+                
+                loadSchoolName();
+                loadSessions();
+                loadStudents();
+            } else {
+                document.getElementById('loginPage').classList.remove('hidden');
+                document.getElementById('signupPage').classList.add('hidden');
+                document.getElementById('dashboardPage').classList.add('hidden');
+            }
+        });
+
+        // Login
+        window.handleLogin = function() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            if (!email || !password) {
+                Swal.fire('Error', 'Please fill all fields', 'error');
+                return;
+            }
+
+            document.getElementById('loadingOverlay').classList.remove('hidden');
+
+            firebase.auth().signInWithEmailAndPassword(email, password)
+                .then(() => document.getElementById('loadingOverlay').classList.add('hidden'))
+                .catch((error) => {
+                    document.getElementById('loadingOverlay').classList.add('hidden');
+                    Swal.fire('Error', error.message, 'error');
+                });
+        };
+
+        // Signup
+        window.handleSignup = function() {
+            const schoolName = document.getElementById('signupSchoolName').value;
+            const email = document.getElementById('signupEmail').value;
+            const phone = document.getElementById('signupPhone').value;
+            const password = document.getElementById('signupPassword').value;
+            const confirmPassword = document.getElementById('signupConfirmPassword').value;
+
+            if (!schoolName || !email || !phone || !password || !confirmPassword) {
+                Swal.fire('Error', 'Please fill all fields', 'error');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                Swal.fire('Error', 'Passwords do not match', 'error');
+                return;
+            }
+
+            document.getElementById('loadingOverlay').classList.remove('hidden');
+
+            firebase.auth().createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    return firebase.database().ref('schools/' + user.uid).set({
+                        schoolName: schoolName,
+                        email: email,
+                        phone: phone,
+                        createdAt: new Date().toISOString()
+                    });
+                })
+                .then(() => {
+                    document.getElementById('loadingOverlay').classList.add('hidden');
+                    Swal.fire('Success', 'School registered successfully!', 'success');
+                })
+                .catch((error) => {
+                    document.getElementById('loadingOverlay').classList.add('hidden');
+                    Swal.fire('Error', error.message, 'error');
+                });
+        };
+
+        // Load sessions
+        window.loadSessions = function() {
+            if (!currentUser) return;
+
+            firebase.database().ref('sessions').orderByChild('schoolId').equalTo(currentUser.uid).on('value', (snapshot) => {
+                const sessions = [];
+                snapshot.forEach((childSnapshot) => {
+                    sessions.push(childSnapshot.val());
+                });
+                displaySessions(sessions);
+            });
+        };
+
+        // Display sessions
+        window.displaySessions = function(sessions) {
+            const container = document.getElementById('sessionsList');
+            
+            if (sessions.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-4 text-center py-4 gradient-text">
+                        No sessions yet. Create your first session!
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            sessions.sort((a, b) => b.createdAt.localeCompare(a.createdAt)).forEach(session => {
+                const activeClass = session.isActive ? 'active' : '';
+                if (session.isActive) {
+                    currentSession = session.id;
+                    document.getElementById('currentSessionName').textContent = session.name;
+                }
+                
+                html += `
+                    <div class="session-card ${activeClass}" onclick="selectSession('${session.id}')">
+                        <h4 class="font-bold text-lg">${session.name}</h4>
+                        <p class="text-sm opacity-90">${session.year}</p>
+                        <p class="text-xs mt-2 bg-white bg-opacity-20 inline-block px-2 py-1 rounded-full">
+                            <i class="fas fa-users mr-1"></i> ${session.studentCount || 0} Students
+                        </p>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        };
+
+        // Create new session
+        window.createNewSession = function() {
+            Swal.fire({
+                title: 'Create New Session',
+                html: `
+                    <input type="text" id="sessionName" class="swal2-input" placeholder="Session Name (e.g., 2024-25)">
+                    <input type="text" id="sessionYear" class="swal2-input" placeholder="Year (e.g., 2024)">
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'Create',
+                preConfirm: () => {
+                    const name = document.getElementById('sessionName').value;
+                    const year = document.getElementById('sessionYear').value;
+                    
+                    if (!name || !year) {
+                        Swal.showValidationMessage('Please fill all fields');
+                        return false;
+                    }
+                    
+                    return { name, year };
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const { name, year } = result.value;
+                    
+                    const sessionId = firebase.database().ref().child('sessions').push().key;
+                    const sessionData = {
+                        id: sessionId,
+                        name: name,
+                        year: year,
+                        schoolId: currentUser.uid,
+                        isActive: false,
+                        studentCount: 0,
+                        createdAt: new Date().toISOString()
+                    };
+                    
+                    firebase.database().ref('sessions/' + sessionId).set(sessionData)
+                        .then(() => Swal.fire('Success', 'Session created!', 'success'));
+                }
+            });
+        };
+
+        // Select session
+        window.selectSession = function(sessionId) {
+            document.getElementById('loadingOverlay').classList.remove('hidden');
+            
+            firebase.database().ref('sessions').orderByChild('schoolId').equalTo(currentUser.uid).once('value')
+                .then((snapshot) => {
+                    const updates = [];
+                    snapshot.forEach((child) => {
+                        updates.push(
+                            firebase.database().ref('sessions/' + child.key).update({ isActive: false })
+                        );
+                    });
+                    
+                    return Promise.all(updates);
+                })
+                .then(() => {
+                    return firebase.database().ref('sessions/' + sessionId).update({ isActive: true });
+                })
+                .then(() => {
+                    document.getElementById('loadingOverlay').classList.add('hidden');
+                    currentSession = sessionId;
+                    selectedStudents.clear();
+                    updateBatchCount();
+                    loadStudents();
+                    Swal.fire('Success', 'Session activated!', 'success');
+                });
+        };
+
+        // Add student with unique parent name check
+        window.addStudent = function() {
+            if (!currentUser || !currentSession) {
+                Swal.fire('Error', 'Please select a session first!', 'error');
+                return;
+            }
+
+            const parentName = document.getElementById('parentName').value.trim();
+            const studentName = document.getElementById('studentName').value.trim();
+            const className = document.getElementById('className').value;
+            const phoneNumber = document.getElementById('phoneNumber').value.trim();
+            const monthlyFee = parseFloat(document.getElementById('monthlyFee').value) || 0;
+            const transportFee = parseFloat(document.getElementById('transportFee').value) || 0;
+
+            if (!parentName || !studentName || !className || !phoneNumber) {
+                Swal.fire('Error', 'Please fill all required fields', 'error');
+                return;
+            }
+
+            document.getElementById('loadingOverlay').classList.remove('hidden');
+
+            // Check if parent name already exists in current session
+            firebase.database().ref('students').orderByChild('parentName').equalTo(parentName).once('value')
+                .then((snapshot) => {
+                    let exists = false;
+                    snapshot.forEach((child) => {
+                        const student = child.val();
+                        if (student.schoolId === currentUser.uid && student.sessionId === currentSession) {
+                            exists = true;
+                        }
+                    });
+
+                    if (exists) {
+                        document.getElementById('loadingOverlay').classList.add('hidden');
+                        Swal.fire('Error', 'Parent name already exists! Please use a different name.', 'error');
+                        return Promise.reject('Parent name exists');
+                    }
+
+                    const studentId = firebase.database().ref().child('students').push().key;
+                    const totalFee = monthlyFee + transportFee;
+
+                    const studentData = {
+                        id: studentId,
+                        parentName: parentName,
+                        studentName: studentName,
+                        className: className,
+                        phoneNumber: phoneNumber,
+                        monthlyFee: monthlyFee,
+                        transportFee: transportFee,
+                        totalFee: totalFee,
+                        paidAmount: 0,
+                        dueAmount: totalFee,
+                        schoolId: currentUser.uid,
+                        sessionId: currentSession,
+                        createdAt: new Date().toISOString()
+                    };
+
+                    return firebase.database().ref('students/' + studentId).set(studentData);
+                })
+                .then(() => {
+                    return firebase.database().ref('sessions/' + currentSession).once('value');
+                })
+                .then((snapshot) => {
+                    const session = snapshot.val();
+                    return firebase.database().ref('sessions/' + currentSession).update({
+                        studentCount: (session.studentCount || 0) + 1
+                    });
+                })
+                .then(() => {
+                    document.getElementById('loadingOverlay').classList.add('hidden');
+                    Swal.fire('Success', 'Student added successfully!', 'success');
+                    document.getElementById('parentName').value = '';
+                    document.getElementById('studentName').value = '';
+                    document.getElementById('className').value = '';
+                    document.getElementById('phoneNumber').value = '';
+                    document.getElementById('monthlyFee').value = '0';
+                    document.getElementById('transportFee').value = '0';
+                    loadStudents();
+                })
+                .catch((error) => {
+                    if (error !== 'Parent name exists') {
+                        document.getElementById('loadingOverlay').classList.add('hidden');
+                        Swal.fire('Error', error.message, 'error');
+                    }
+                });
+        };
+
+        // Load students
+        window.loadStudents = function() {
+            if (!currentUser || !currentSession) {
+                document.getElementById('classesContainer').innerHTML = 
+                    '<div class="text-center py-8 gradient-text">Please select a session to view students</div>';
+                return;
+            }
+
+            firebase.database().ref('students').orderByChild('schoolId').equalTo(currentUser.uid).on('value', (snapshot) => {
+                const students = [];
+                snapshot.forEach((childSnapshot) => {
+                    const student = childSnapshot.val();
+                    if (student.sessionId === currentSession) {
+                        students.push(student);
+                    }
+                });
+
+                // Group by class
+                const classMap = new Map();
+                students.forEach(student => {
+                    if (!classMap.has(student.className)) {
+                        classMap.set(student.className, []);
+                    }
+                    classMap.get(student.className).push(student);
+                });
+
+                displayStudents(classMap);
+                
+                // Show/hide batch mode button
+                const batchBtn = document.getElementById('batchModeBtn');
+                if (students.length > 0) {
+                    batchBtn.classList.remove('hidden');
+                } else {
+                    batchBtn.classList.add('hidden');
+                }
+            });
+        };
+
+        // Display students by class
+        window.displayStudents = function(classMap) {
+            const container = document.getElementById('classesContainer');
+            
+            if (classMap.size === 0) {
+                container.innerHTML = '<div class="text-center py-8 gradient-text">No students found. Add your first student!</div>';
+                return;
+            }
+
+            let html = '';
+            
+            // Sort classes
+            const classOrder = ['Nursery', 'KG', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
+            const sortedClasses = Array.from(classMap.keys()).sort((a, b) => {
+                return classOrder.indexOf(a) - classOrder.indexOf(b);
+            });
+            
+            sortedClasses.forEach(className => {
+                const students = classMap.get(className);
+                
+                // Filter by class if needed
+                if (currentClassFilter !== 'all' && currentClassFilter !== className) {
+                    return;
+                }
+                
+                html += `
+                    <div class="class-card">
+                        <div class="class-header">
+                            <h3 class="text-xl font-bold">Class ${className}</h3>
+                            <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
+                                ${students.length} Students
+                            </span>
+                        </div>
+                        
+                        <div class="space-y-2">
+                `;
+                
+                students.sort((a, b) => a.parentName.localeCompare(b.parentName)).forEach(student => {
+                    const isSelected = selectedStudents.has(student.id);
+                    
+                    html += `
+                        <div id="student-${student.id}" class="student-card ${isSelected ? 'batch-selected' : ''}" 
+                             onclick="openStudentProfile('${student.id}')">
+                            <div class="grid grid-cols-1 md:grid-cols-12 gap-2 items-center">
+                                ${batchMode ? `
+                                    <div class="md:col-span-1" onclick="event.stopPropagation()">
+                                        <input type="checkbox" class="student-checkbox" value="${student.id}" 
+                                               onchange="toggleStudentSelection('${student.id}')" ${isSelected ? 'checked' : ''}>
+                                    </div>
+                                ` : ''}
+                                <div class="${batchMode ? 'md:col-span-3' : 'md:col-span-4'}">
+                                    <p class="font-semibold">${student.parentName}</p>
+                                    <p class="text-sm text-gray-600">${student.studentName}</p>
+                                </div>
+                                <div class="${batchMode ? 'md:col-span-2' : 'md:col-span-2'}">
+                                    <p class="text-sm">${student.phoneNumber}</p>
+                                </div>
+                                <div class="${batchMode ? 'md:col-span-3' : 'md:col-span-3'}">
+                                    <p class="text-xs">Monthly: ₹${student.monthlyFee}</p>
+                                    <p class="text-xs">Transport: ₹${student.transportFee}</p>
+                                </div>
+                                <div class="${batchMode ? 'md:col-span-3' : 'md:col-span-3'}">
+                                    <p class="text-xs text-green-600">Paid: ₹${student.paidAmount}</p>
+                                    <p class="text-xs text-red-600">Due: ₹${student.dueAmount}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        };
+
+        // Open student profile
+        window.openStudentProfile = function(studentId) {
+            firebase.database().ref('students/' + studentId).once('value')
+                .then((snapshot) => {
+                    const student = snapshot.val();
+                    currentProfileStudent = student;
+                    
+                    document.getElementById('profileStudentName').textContent = student.studentName;
+                    document.getElementById('profileParentName').textContent = `Parent: ${student.parentName}`;
+                    document.getElementById('profileClass').textContent = student.className;
+                    document.getElementById('profilePhone').textContent = student.phoneNumber;
+                    document.getElementById('profileMonthlyFee').textContent = `₹${student.monthlyFee}`;
+                    document.getElementById('profileTransportFee').textContent = `₹${student.transportFee}`;
+                    document.getElementById('profileTotalFee').textContent = `₹${student.totalFee}`;
+                    document.getElementById('profilePaidAmount').textContent = `₹${student.paidAmount}`;
+                    document.getElementById('profileDueAmount').textContent = `₹${student.dueAmount}`;
+                    
+                    // Load payment history
+                    loadProfilePayments(studentId);
+                    
+                    document.getElementById('studentProfileModal').classList.add('active');
+                });
+        };
+
+        // Load profile payments
+        window.loadProfilePayments = function(studentId) {
+            firebase.database().ref('payments').orderByChild('studentId').equalTo(studentId).once('value')
+                .then((snapshot) => {
+                    const payments = [];
+                    snapshot.forEach((child) => {
+                        payments.push(child.val());
+                    });
+                    
+                    payments.sort((a, b) => new Date(b.date) - new Date(a.date));
+                    
+                    const container = document.getElementById('profilePayments');
+                    
+                    if (payments.length === 0) {
+                        container.innerHTML = '<p class="text-gray-500 text-center py-4">No payment history</p>';
+                        return;
+                    }
+                    
+                    container.innerHTML = payments.map(p => {
+                        const date = new Date(p.date).toLocaleDateString();
+                        const [year, month] = p.month.split('-');
+                        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                            'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                        const monthName = monthNames[parseInt(month) - 1];
+                        
+                        return `
+                            <div class="payment-item">
+                                <div class="flex justify-between items-center">
+                                    <div>
+                                        <p class="font-semibold">₹${p.amount}</p>
+                                        <p class="text-xs text-gray-600">${monthName} ${year}</p>
+                                    </div>
+                                    <span class="text-xs text-gray-400">${date}</span>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                });
+        };
+
+        // Make payment from profile
+        window.makePaymentFromProfile = function() {
+            if (!currentProfileStudent) return;
+            
+            Swal.fire({
+                title: 'Make Payment',
+                html: `
+                    <input type="number" id="paymentAmount" class="swal2-input" placeholder="Amount">
+                    <input type="month" id="paymentMonth" class="swal2-input">
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'Pay',
+                preConfirm: () => {
+                    const amount = parseFloat(document.getElementById('paymentAmount').value);
+                    const month = document.getElementById('paymentMonth').value;
+                    
+                    if (!amount || !month) {
+                        Swal.showValidationMessage('Please fill all fields');
+                        return false;
+                    }
+                    
+                    return { amount, month };
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const { amount, month } = result.value;
+                    
+                    document.getElementById('loadingOverlay').classList.remove('hidden');
+                    
+                    const newPaidAmount = currentProfileStudent.paidAmount + amount;
+                    const newDueAmount = currentProfileStudent.totalFee - newPaidAmount;
+                    
+                    firebase.database().ref('students/' + currentProfileStudent.id).update({
+                        paidAmount: newPaidAmount,
+                        dueAmount: newDueAmount
+                    }).then(() => {
+                        const paymentId = firebase.database().ref().child('payments').push().key;
+                        return firebase.database().ref('payments/' + paymentId).set({
+                            studentId: currentProfileStudent.id,
+                            parentName: currentProfileStudent.parentName,
+                            childName: currentProfileStudent.studentName,
+                            amount: amount,
+                            month: month,
+                            date: new Date().toISOString(),
+                            schoolId: currentUser.uid,
+                            sessionId: currentSession
+                        });
+                    }).then(() => {
+                        document.getElementById('loadingOverlay').classList.add('hidden');
+                        Swal.fire('Success', 'Payment recorded!', 'success');
+                        closeProfileModal();
+                        loadStudents();
+                    });
+                }
+            });
+        };
+
+        // Close profile modal
+        window.closeProfileModal = function() {
+            document.getElementById('studentProfileModal').classList.remove('active');
+            currentProfileStudent = null;
+        };
+
+        // Toggle batch mode
+        window.toggleBatchMode = function() {
+            batchMode = !batchMode;
+            const batchBar = document.getElementById('batchBar');
+            const batchBtn = document.getElementById('batchModeBtn');
+            
+            if (batchMode) {
+                batchBar.classList.remove('hidden');
+                batchBtn.innerHTML = '<i class="fas fa-times mr-2"></i>Exit Batch';
+            } else {
+                batchBar.classList.add('hidden');
+                batchBtn.innerHTML = '<i class="fas fa-check-double mr-2"></i>Batch Mode';
+                selectedStudents.clear();
+                updateBatchCount();
+            }
+            loadStudents();
+        };
+
+        // Toggle student selection
+        window.toggleStudentSelection = function(studentId) {
+            if (selectedStudents.has(studentId)) {
+                selectedStudents.delete(studentId);
+                document.getElementById(`student-${studentId}`)?.classList.remove('batch-selected');
+            } else {
+                selectedStudents.add(studentId);
+                document.getElementById(`student-${studentId}`)?.classList.add('batch-selected');
+            }
+            updateBatchCount();
+        };
+
+        // Update batch count
+        window.updateBatchCount = function() {
+            document.getElementById('batchSelectedCount').textContent = selectedStudents.size;
+        };
+
+        // Select all students
+        window.selectAllStudents = function() {
+            const checkboxes = document.querySelectorAll('.student-checkbox');
+            checkboxes.forEach(cb => {
+                selectedStudents.add(cb.value);
+                cb.checked = true;
+                document.getElementById(`student-${cb.value}`)?.classList.add('batch-selected');
+            });
+            updateBatchCount();
+        };
+
+        // Deselect all students
+        window.deselectAllStudents = function() {
+            const checkboxes = document.querySelectorAll('.student-checkbox');
+            checkboxes.forEach(cb => {
+                selectedStudents.delete(cb.value);
+                cb.checked = false;
+                document.getElementById(`student-${cb.value}`)?.classList.remove('batch-selected');
+            });
+            updateBatchCount();
+        };
+
+        // Open batch edit modal
+        window.openBatchEditModal = function() {
+            if (selectedStudents.size === 0) {
+                Swal.fire('Error', 'Please select at least one student', 'error');
+                return;
+            }
+            document.getElementById('batchEditCount').textContent = selectedStudents.size;
+            document.getElementById('batchEditModal').classList.add('active');
+        };
+
+        // Close batch edit modal
+        window.closeBatchEditModal = function() {
+            document.getElementById('batchEditModal').classList.remove('active');
+            document.getElementById('batchEditClass').value = '';
+            document.getElementById('batchEditMonthlyFee').value = '';
+            document.getElementById('batchEditTransportFee').value = '';
+        };
+
+        // Process batch edit
+        window.processBatchEdit = function() {
+            const newClass = document.getElementById('batchEditClass').value;
+            const newMonthlyFee = document.getElementById('batchEditMonthlyFee').value;
+            const newTransportFee = document.getElementById('batchEditTransportFee').value;
+
+            if (!newClass && !newMonthlyFee && !newTransportFee) {
+                Swal.fire('Error', 'Please fill at least one field', 'error');
+                return;
+            }
+
+            document.getElementById('loadingOverlay').classList.remove('hidden');
+
+            const promises = [];
+            selectedStudents.forEach(studentId => {
+                firebase.database().ref('students/' + studentId).once('value')
+                    .then((snapshot) => {
+                        const student = snapshot.val();
+                        const updates = {};
+                        
+                        if (newClass) updates.className = newClass;
+                        if (newMonthlyFee) updates.monthlyFee = parseFloat(newMonthlyFee);
+                        if (newTransportFee) updates.transportFee = parseFloat(newTransportFee);
+                        
+                        if (newMonthlyFee || newTransportFee) {
+                            updates.totalFee = (parseFloat(newMonthlyFee) || student.monthlyFee) + 
+                                             (parseFloat(newTransportFee) || student.transportFee);
+                            updates.dueAmount = updates.totalFee - student.paidAmount;
+                        }
+                        
+                        return firebase.database().ref('students/' + studentId).update(updates);
+                    })
+                    .then(() => promises.push(true));
+            });
+
+            Promise.all(promises).then(() => {
+                document.getElementById('loadingOverlay').classList.add('hidden');
+                closeBatchEditModal();
+                Swal.fire('Success', `Updated ${selectedStudents.size} students!`, 'success');
+                loadStudents();
+            });
+        };
+
+        // Open batch payment modal
+        window.openBatchPaymentModal = function() {
+            if (selectedStudents.size === 0) {
+                Swal.fire('Error', 'Please select at least one student', 'error');
+                return;
+            }
+            document.getElementById('selectedCount').textContent = selectedStudents.size;
+            document.getElementById('batchPaymentModal').classList.add('active');
+        };
+
+        // Close batch payment modal
+        window.closeBatchPaymentModal = function() {
+            document.getElementById('batchPaymentModal').classList.remove('active');
+            document.getElementById('batchPaymentMonth').value = '';
+            document.getElementById('batchPaymentAmount').value = '';
+        };
+
+        // Process batch payment
+        window.processBatchPayment = function() {
+            const month = document.getElementById('batchPaymentMonth').value;
+            const amount = parseFloat(document.getElementById('batchPaymentAmount').value);
+
+            if (!month || !amount || amount <= 0) {
+                Swal.fire('Error', 'Please fill all fields correctly', 'error');
+                return;
+            }
+
+            document.getElementById('loadingOverlay').classList.remove('hidden');
+
+            const promises = [];
+            selectedStudents.forEach(studentId => {
+                const promise = firebase.database().ref('students/' + studentId).once('value')
+                    .then((snapshot) => {
+                        const student = snapshot.val();
+                        if (student && student.sessionId === currentSession) {
+                            const newPaidAmount = student.paidAmount + amount;
+                            const newDueAmount = student.totalFee - newPaidAmount;
+                            
+                            return firebase.database().ref('students/' + studentId).update({
+                                paidAmount: newPaidAmount,
+                                dueAmount: newDueAmount
+                            }).then(() => {
+                                const paymentId = firebase.database().ref().child('payments').push().key;
+                                return firebase.database().ref('payments/' + paymentId).set({
+                                    studentId: studentId,
+                                    parentName: student.parentName,
+                                    childName: student.studentName,
+                                    amount: amount,
+                                    month: month,
+                                    date: new Date().toISOString(),
+                                    schoolId: currentUser.uid,
+                                    sessionId: currentSession
+                                });
+                            });
+                        }
+                    });
+                promises.push(promise);
+            });
+
+            Promise.all(promises).then(() => {
+                document.getElementById('loadingOverlay').classList.add('hidden');
+                closeBatchPaymentModal();
+                Swal.fire('Success', `Payment recorded for ${selectedStudents.size} students!`, 'success');
+                deselectAllStudents();
+                loadStudents();
+            });
+        };
+
+        // Batch promote
+        window.batchPromote = function() {
+            if (selectedStudents.size === 0) {
+                Swal.fire('Error', 'Please select at least one student', 'error');
+                return;
+            }
+
+            firebase.database().ref('sessions').orderByChild('schoolId').equalTo(currentUser.uid).once('value')
+                .then((snapshot) => {
+                    const sessions = [];
+                    snapshot.forEach((child) => {
+                        const session = child.val();
+                        if (session.id !== currentSession) {
+                            sessions.push(session);
+                        }
+                    });
+
+                    let options = '<option value="">Select Session</option>';
+                    sessions.forEach(session => {
+                        options += `<option value="${session.id}">${session.name} (${session.year})</option>`;
+                    });
+
+                    Swal.fire({
+                        title: 'Batch Promote',
+                        html: `
+                            <select id="batchNewSession" class="swal2-input">
+                                ${options}
+                            </select>
+                            <select id="batchNewClass" class="swal2-input">
+                                <option value="">Select New Class</option>
+                                <option value="Nursery">Nursery</option>
+                                <option value="KG">KG</option>
+                                <option value="1">Class 1</option>
+                                <option value="2">Class 2</option>
+                                <option value="3">Class 3</option>
+                                <option value="4">Class 4</option>
+                                <option value="5">Class 5</option>
+                                <option value="6">Class 6</option>
+                                <option value="7">Class 7</option>
+                                <option value="8">Class 8</option>
+                                <option value="9">Class 9</option>
+                                <option value="10">Class 10</option>
+                            </select>
+                        `,
+                        showCancelButton: true,
+                        confirmButtonText: 'Promote',
+                        preConfirm: () => {
+                            const newSession = document.getElementById('batchNewSession').value;
+                            const newClass = document.getElementById('batchNewClass').value;
+                            
+                            if (!newSession || !newClass) {
+                                Swal.showValidationMessage('Please fill all fields');
+                                return false;
+                            }
+                            
+                            return { newSession, newClass };
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            const { newSession, newClass } = result.value;
+                            document.getElementById('loadingOverlay').classList.remove('hidden');
+                            
+                            const promises = [];
+                            selectedStudents.forEach(studentId => {
+                                const promise = firebase.database().ref('students/' + studentId).once('value')
+                                    .then((snapshot) => {
+                                        const oldStudent = snapshot.val();
+                                        
+                                        const newStudentId = firebase.database().ref().child('students').push().key;
+                                        const newStudent = {
+                                            id: newStudentId,
+                                            parentName: oldStudent.parentName,
+                                            studentName: oldStudent.studentName,
+                                            className: newClass,
+                                            phoneNumber: oldStudent.phoneNumber,
+                                            monthlyFee: oldStudent.monthlyFee,
+                                            transportFee: oldStudent.transportFee,
+                                            totalFee: oldStudent.totalFee,
+                                            paidAmount: 0,
+                                            dueAmount: oldStudent.totalFee,
+                                            schoolId: currentUser.uid,
+                                            sessionId: newSession,
+                                            promotedFrom: studentId,
+                                            createdAt: new Date().toISOString()
+                                        };
+                                        
+                                        return firebase.database().ref('students/' + newStudentId).set(newStudent)
+                                            .then(() => firebase.database().ref('students/' + studentId).remove());
+                                    });
+                                promises.push(promise);
+                            });
+
+                            Promise.all(promises)
+                                .then(() => {
+                                    return Promise.all([
+                                        firebase.database().ref('sessions/' + currentSession).once('value'),
+                                        firebase.database().ref('sessions/' + newSession).once('value')
+                                    ]);
+                                })
+                                .then(([oldSnapshot, newSnapshot]) => {
+                                    const oldSessionData = oldSnapshot.val();
+                                    const newSessionData = newSnapshot.val();
+                                    
+                                    return Promise.all([
+                                        firebase.database().ref('sessions/' + currentSession).update({
+                                            studentCount: Math.max(0, (oldSessionData.studentCount || selectedStudents.size) - selectedStudents.size)
+                                        }),
+                                        firebase.database().ref('sessions/' + newSession).update({
+                                            studentCount: (newSessionData.studentCount || 0) + selectedStudents.size
+                                        })
+                                    ]);
+                                })
+                                .then(() => {
+                                    document.getElementById('loadingOverlay').classList.add('hidden');
+                                    Swal.fire('Success', `${selectedStudents.size} students promoted!`, 'success');
+                                    deselectAllStudents();
+                                    loadStudents();
+                                });
+                        }
+                    });
+                });
+        };
+
+        // Batch delete
+        window.batchDelete = function() {
+            if (selectedStudents.size === 0) {
+                Swal.fire('Error', 'Please select at least one student', 'error');
+                return;
+            }
+
+            Swal.fire({
+                title: 'Delete Students',
+                text: `Are you sure you want to delete ${selectedStudents.size} students?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#f56565',
+                confirmButtonText: 'Yes, delete'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('loadingOverlay').classList.remove('hidden');
+                    
+                    const promises = [];
+                    selectedStudents.forEach(studentId => {
+                        const promise = firebase.database().ref('students/' + studentId).remove()
+                            .then(() => {
+                                return firebase.database().ref('payments').orderByChild('studentId').equalTo(studentId).once('value');
+                            })
+                            .then((snapshot) => {
+                                const paymentPromises = [];
+                                snapshot.forEach((child) => {
+                                    paymentPromises.push(firebase.database().ref('payments/' + child.key).remove());
+                                });
+                                return Promise.all(paymentPromises);
+                            });
+                        promises.push(promise);
+                    });
+
+                    Promise.all(promises)
+                        .then(() => {
+                            return firebase.database().ref('sessions/' + currentSession).once('value');
+                        })
+                        .then((snapshot) => {
+                            const session = snapshot.val();
+                            return firebase.database().ref('sessions/' + currentSession).update({
+                                studentCount: Math.max(0, (session.studentCount || selectedStudents.size) - selectedStudents.size)
+                            });
+                        })
+                        .then(() => {
+                            document.getElementById('loadingOverlay').classList.add('hidden');
+                            Swal.fire('Deleted!', `${selectedStudents.size} students deleted.`, 'success');
+                            deselectAllStudents();
+                            loadStudents();
+                        });
+                }
+            });
+        };
+
+        // Filter by class
+        window.filterByClass = function(className) {
+            currentClassFilter = className;
+            
+            // Update active class
+            document.querySelectorAll('.class-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            loadStudents();
+        };
+
+        // Search students
+        window.searchStudents = function() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const cards = document.querySelectorAll('.student-card');
+            
+            cards.forEach(card => {
+                const text = card.textContent.toLowerCase();
+                if (text.includes(searchTerm) || searchTerm === '') {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        };
+
+        // Load school name
+        window.loadSchoolName = function() {
+            if (!currentUser) return;
+            
+            firebase.database().ref('schools/' + currentUser.uid).once('value')
+                .then((snapshot) => {
+                    const school = snapshot.val();
+                    document.getElementById('schoolNameDisplay').textContent = school?.schoolName || 'School Name';
+                });
+        };
+
+        // UI navigation
+        window.showLogin = function() {
+            document.getElementById('loginPage').classList.remove('hidden');
+            document.getElementById('signupPage').classList.add('hidden');
+            document.getElementById('dashboardPage').classList.add('hidden');
+        };
+
+        window.showSignup = function() {
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('signupPage').classList.remove('hidden');
+            document.getElementById('dashboardPage').classList.add('hidden');
+        };
+
+        window.logout = function() {
+            Swal.fire({
+                title: 'Logout?',
+                text: 'Are you sure you want to logout?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#f56565',
+                confirmButtonText: 'Yes, logout'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    firebase.auth().signOut();
+                }
+            });
+        };
+
+        // Close modals on outside click
+        window.onclick = function(event) {
+            const modals = ['batchPaymentModal', 'batchEditModal', 'studentProfileModal'];
+            modals.forEach(modalId => {
+                const modal = document.getElementById(modalId);
+                if (event.target === modal) {
+                    if (modalId === 'batchPaymentModal') closeBatchPaymentModal();
+                    if (modalId === 'batchEditModal') closeBatchEditModal();
+                    if (modalId === 'studentProfileModal') closeProfileModal();
+                }
+            });
+        };
+    </script>
+</body>
+</html>
